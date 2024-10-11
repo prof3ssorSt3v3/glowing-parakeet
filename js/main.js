@@ -12,12 +12,12 @@ function addListeners() {
   //add a submit listener to the form
   let form = document.querySelector('#enemyForm');
   //add delete listeners for cards
-  let section = document.querySelector('.enemies');
+  let section = document.querySelector('#enemies');
 }
 
 function buildEnemyCards() {
   if (!enemyList) return;
-  let section = document.querySelector('.enemies');
+  let section = document.querySelector('#enemies');
   //called when page loads AND after any update to the enemyList
 }
 

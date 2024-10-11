@@ -1,1 +1,1 @@
-export const enemyList = [];
+export let enemyList = [];
