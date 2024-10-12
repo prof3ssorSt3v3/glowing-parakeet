@@ -22,6 +22,8 @@ function addListeners() {
   //do the reset
   document.getElementById('btnCancel').addEventListener('click', (ev) => {
     document.getElementById('enemyForm').reset(); //clear the form
+    document.getElementById('uuid').value = ''; //clear any uuid being used for edit
+    document.getElementById('btnSave').setAttribute('data-action', 'insert');
     ev.preventDefault(); //don't submit the form
     ev.stopPropagation();
   });
@@ -38,6 +40,7 @@ function buildEnemyCards() {
         <h3>${enemy.name}</h3>
         <p>${enemy.reason}</p>
         <button class="btnDelete">Forgive Them</button>
+        <button class="btnEdit">Edit</button>
       </div>`;
     })
     .join(' ');
@@ -50,9 +53,9 @@ function addUserToList(ev) {
   ev.preventDefault(); //STOP the SUBMIT happening. No page reload
   document.getElementById('enemy').classList.remove('error');
   document.getElementById('reason').classList.remove('error');
-  let uuid = crypto.randomUUID();
   let name = document.getElementById('enemy').value; //what the user typed
   let reason = document.getElementById('reason').value; //what the user typed
+  let uuid;
   if (!name) {
     document.getElementById('enemy').classList.add('error');
     return;
@@ -61,13 +64,34 @@ function addUserToList(ev) {
     document.getElementById('reason').classList.add('error');
     return;
   }
-  let newEnemy = {
-    uuid,
-    name,
-    reason,
-  };
-  enemies.unshift(newEnemy);
+  if (document.getElementById('uuid').value) {
+    //we are editing
+    uuid = document.getElementById('uuid').value;
+    let newEnemy = {
+      uuid,
+      name,
+      reason,
+    };
+    enemies = enemies.map((enemy) => {
+      if (enemy.uuid === uuid) {
+        return newEnemy;
+      }
+      return enemy;
+    });
+  } else {
+    //new user
+    uuid = crypto.randomUUID();
+    let newEnemy = {
+      uuid,
+      name,
+      reason,
+    };
+    enemies.unshift(newEnemy);
+  }
+
   buildEnemyCards();
+  document.getElementById('uuid').value = '';
+  document.getElementById('btnSave').setAttribute('data-action', 'insert');
   document.getElementById('enemyForm').reset();
 }
 
@@ -77,18 +101,35 @@ function removeFromList(ev) {
   //rebuild the list of enemies cards
   let target = ev.target;
   // console.log(target.tagName, target.localName, ev.currentTarget.localName);
-  if (target.localName === 'button' && target.classList.contains('btnDelete')) {
+  if (target.localName === 'button') {
     let card = target.closest('.enemy');
     if (card) {
       let uuid = card.getAttribute('data-ref');
-      enemies = enemies.filter((enemy) => {
-        if (enemy.uuid === uuid) {
-          return false;
+      if (target.classList.contains('btnDelete')) {
+        //delete button
+        enemies = enemies.filter((enemy) => {
+          if (enemy.uuid === uuid) {
+            return false;
+          }
+          return true;
+        });
+        console.log(enemies);
+        buildEnemyCards();
+      } else if (target.classList.contains('btnEdit')) {
+        //edit button
+        let match = enemies.find((enemy) => enemy.uuid === uuid);
+        if (match) {
+          document.getElementById('enemy').value = match.name;
+          document.getElementById('reason').value = match.reason;
+          document.getElementById('uuid').value = uuid;
+          //form is ready to edit... update the button
+          document.getElementById('btnSave').setAttribute('data-action', 'update');
+        } else {
+          //no match...but there should be
         }
-        return true;
-      });
-      console.log(enemies);
-      buildEnemyCards();
+      }
     }
+  } else {
+    //not a button
   }
 }
