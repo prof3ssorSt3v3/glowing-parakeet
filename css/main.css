@@ -65,6 +65,12 @@ header {
   padding: 0.2rem 1rem;
   border: none;
 }
+#btnSave[data-action='insert']::after {
+  content: 'Remember this Enemy';
+}
+#btnSave[data-action='update']::after {
+  content: 'Update this enemy';
+}
 main {
   h2 {
     font-weight: 500;
@@ -89,6 +95,10 @@ div.enemy {
   font-size: 1rem;
   padding: 0.2rem 1rem;
   border: none;
+}
+.enemy button.btnEdit {
+  background-color: cornflowerblue;
+  color: white;
 }
 
 input.error,
